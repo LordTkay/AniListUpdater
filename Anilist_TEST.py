@@ -3,6 +3,7 @@ import webbrowser
 import json
 from urllib import parse
 
+import Secrets
 
 class AniList:
 
@@ -61,20 +62,28 @@ class AniList:
         }
 
         query = '''
-            mutation ($mediaId: Int, $status: MediaListStatus) {
-              SaveMediaListEntry(mediaId: $mediaId, status: $status) {
+            mutation ($mediaId: Int, $progress: Int) {
+              SaveMediaListEntry(mediaId: $mediaId, progress: $progress) {
                 id
-                status
+                progress
               }
             }
+
         '''
 
         variables = {
             'mediaId': mediaId,
-            'status': status
+            'progress': status
         }
 
         response = requests.post(self.GRAPHQL_URL, headers=headers, json={'query':query, 'variables': variables})
         if response.status_code != 200:
             raise Exception(response.text)
         return response.text
+
+
+ani = AniList(Secrets.API_ID, Secrets.API_SECRET, Secrets.API_REDIRECT_URI)
+ani.token = Secrets.API_TOKEN
+ani.token_type = 'Bearer'
+
+ani.update_anime(1, 2)
